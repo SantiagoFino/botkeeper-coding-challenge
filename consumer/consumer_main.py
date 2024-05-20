@@ -5,8 +5,8 @@ from config import settings
 
 def main():
     consumer = KafkaMessageConsumer(
-        boostrap_servers=settings.BOOSTRAP_SERVERS,
         topic=settings.TOPIC,
+        boostrap_servers=settings.BOOSTRAP_SERVERS,
         group_id=settings.GROUP_ID
     )
     consumer.consume_message(

@@ -2,8 +2,7 @@ from reader import CSVReader
 from kafka_producer import KafkaMessageProducer
 from config import settings
 from data_cleaner import clean_data
-from logger import logger
-
+from time import time
 
 def main():
     reader = CSVReader(path=settings.CSV_FILE_PATH)
@@ -16,7 +15,9 @@ def main():
         }
         cleaned_message = clean_data(message)
         producer.send_message(message=cleaned_message)
-        logger.info(cleaned_message)
+
+    producer.flush()
+    
     
 if __name__ == "__main__":
     main()

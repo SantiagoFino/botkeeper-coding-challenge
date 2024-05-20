@@ -4,9 +4,9 @@ from typing import Callable
 
 
 class KafkaMessageConsumer:
-    def __init__(self, boostrap_servers: str, topic: str, group_id: str) -> None:
+    def __init__(self, topic: str, boostrap_servers: str, group_id: str) -> None:
         self.consumer = KafkaConsumer(
-            topics=topic,
+            topic,
             bootstrap_servers=boostrap_servers,
             group_id=group_id,
             value_deserializer=lambda x: json.loads(x.decode('utf-8'))
