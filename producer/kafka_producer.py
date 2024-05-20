@@ -5,7 +5,7 @@ import json
 class KafkaMessageProducer:
     def __init__(self, bootstrap_servers: str, topic: str):
         self.producer = KafkaProducer(bootstrap_servers=bootstrap_servers,
-                                      value_serializer=None)
+                                      value_serializer=lambda v: json.dumps(v).encode('utf-8'))
         self.topic = topic
 
 
@@ -13,7 +13,6 @@ class KafkaMessageProducer:
         """
         Documentation
         """
-        self.producer.send(self.topic,
-                           message)
+        self.producer.send(self.topic, message)
         self.producer.flush()
         
