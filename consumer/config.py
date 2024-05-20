@@ -5,7 +5,7 @@ class Settings:
     PROJECT_NAME: str = "financial-transactions-streaming"
     TOPIC: str = 'financial_transactions'
     BOOSTRAP_SERVERS: str = 'localhost:9092'
-    CSV_FILE_PATH: str = '/path_to_be_defined'
+    GROUP_ID: str = 'test_consumer'
 
 
 settings = Settings()
