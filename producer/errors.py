@@ -1,11 +1,30 @@
-class KafkaError(Exception):
+
+class FileNotFound(Exception):
+    """Raised when there is an error reading a file"""
+    pass
+
+
+
+class CSVReaderError(Exception):
     """Base class for other exceptions"""
     pass
 
-class CSVReadError(KafkaError):
-    """Raised when there is an error reading the CSV file"""
+class MissingColumnError(CSVReaderError):
+    """Raise when expected columns are missing in the csv"""
     pass
 
-class KafkaProduceError(KafkaError):
+
+
+class KafkaProduceError(Exception):
     """Raised when there is an error producing messages to Kafka"""
+    pass
+
+
+
+class DataCleanerError(Exception):
+    """Raised when an error appears in the datacleaning process"""
+    pass
+
+class ScalerReaderError(DataCleanerError):
+    """Raised when the scaler cannot be read"""
     pass

@@ -1,34 +1,49 @@
-from kafka import KafkaProducer
+from aiokafka import AIOKafkaProducer
+from aiokafka.errors import KafkaTimeoutError
 import json
+from errors import KafkaProduceError
 from logger import logger
 
 
 class KafkaMessageProducer:
     def __init__(self, bootstrap_servers: str, topic: str) -> None:
-        self.producer = KafkaProducer(bootstrap_servers=bootstrap_servers,
-                                      value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+        """
+        Constructor of the message producer
+        Params:
+            bootstrap_servers (str):
+            topic (str):
+        """
+        self.producer = AIOKafkaProducer(bootstrap_servers=bootstrap_servers,
+                                         enable_idempotence=True,
+                                         value_serializer=lambda v: json.dumps(v).encode('utf-8'))
         self.topic = topic
 
-    def send_message(self, message):
+    async def start(self) -> None:
         """
-        Documentation
+        Starts the Kafka producer
         """
-        future = self.producer.send(self.topic, message)
-        future.add_callback(self.on_send_success)
-        future.add_errback(self.on_send_error)
+        if self.producer:
+            await self.producer.start()
 
-    def on_send_success(self, record_metadata):
+    async def stop(self) -> None:
         """
-        Documentation
+        Stops the Kafka Producer
         """
-        logger.info(f"Message sent to {record_metadata.topic} partition {record_metadata.partition} offset {record_metadata.offset}")
+        await self.producer.stop()
 
-    def on_send_error(self, excp):
+    async def send_message(self, message: dict) -> None:
         """
-        Documentation
+        Sends a message to the kafka topic
+        Param:
+            message (dict): key-value pairs corresponding to the description and the
+            amount of a transaction
+        Raise:
+            KafkaProduceError if any error is found in the current messaje sending
         """
-        logger.error(f"Failed to send message: {excp}")
+        try:
+            await self.producer.send_and_wait(self.topic, message)
+        except KafkaTimeoutError as e:
+            logger.error(f"Error sending message {message}: {e}")
+            raise KafkaProduceError(f"Error sending message: {e}")
 
-    def flush(self):
-        self.producer.flush()
         

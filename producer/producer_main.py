@@ -1,23 +1,37 @@
 from reader import CSVReader
 from kafka_producer import KafkaMessageProducer
 from config import settings
-from data_cleaner import clean_data
+from data_cleaner import DataCleaner, load_scaler
 from time import time
+from errors import FileNotFound, CSVReaderError, KafkaProduceError, DataCleanerError
+from logger import logger
+import asyncio
 
-def main():
+
+async def main():
     reader = CSVReader(path=settings.CSV_FILE_PATH)
     producer = KafkaMessageProducer(bootstrap_servers=settings.BOOSTRAP_SERVERS,
                                     topic=settings.TOPIC)
-    for row in reader.read_csv():
-        message = {
-            'description': row['Description'],
-            'amount': row['Amount']
-        }
-        cleaned_message = clean_data(message)
-        producer.send_message(message=cleaned_message)
+    scaler = load_scaler(scaler_path=settings.SCALER_PATH)
+    await producer.start()
+    try:
+        async for row in reader.read_csv():
+            message = {
+                'description': row['Description'],
+                'amount': row['Amount']
+            }
+            cleaner = DataCleaner(row=message, scaler=scaler)
+            cleaned_message = cleaner.clean_data()
+            await producer.send_message(message=cleaned_message)
+    except (FileNotFound, CSVReaderError, KafkaProduceError, DataCleanerError) as e:
+        logger.error(f"Error {str(e)}")
+    except Exception as e:
+        logger.error(f"Unexpected Error: {e}")
+    finally:
+        await producer.stop()
+    
 
-    producer.flush()
-    
-    
 if __name__ == "__main__":
-    main()
+    start = time()
+    asyncio.run(main())
+    print('--- %s seconds ---' %(time() - start))

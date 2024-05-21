@@ -1,21 +1,27 @@
-from kafka import KafkaConsumer
+from aiokafka import AIOKafkaConsumer
+import asyncio
 import json
 from typing import Callable
 
 
 class KafkaMessageConsumer:
     def __init__(self, topic: str, boostrap_servers: str, group_id: str) -> None:
-        self.consumer = KafkaConsumer(
-            topic,
-            bootstrap_servers=boostrap_servers,
-            group_id=group_id,
-            value_deserializer=lambda x: json.loads(x.decode('utf-8'))
-        )
+        self.topic = topic
+        self.bootstrap_servers = boostrap_servers
+        self.group_id = group_id
 
-    def consume_message(self, processor: Callable):
+    async def consume(self, processor: Callable):
         """
         Documentation
         """
-        for m in self.consumer:
-            processor(m)
+        consumer = AIOKafkaConsumer(self.topic,
+                                    bootstrap_servers=self.bootstrap_servers,
+                                    group_id=self.group_id,
+                                    value_deserializer=lambda x: json.loads(x.decode('utf-8')))
+        await consumer.start()
+        try:
+            async for msg in consumer:
+                await processor(msg.value)
+        finally:
+            consumer.stop()
         

@@ -1,5 +1,5 @@
 class KafkaError(Exception):
-    """Base class for other exceptions"""
+    """Base class for other kafka exceptions"""
     pass
 
 class CSVReadError(KafkaError):

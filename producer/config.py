@@ -6,6 +6,7 @@ class Settings:
     TOPIC: str = 'financial_transactions'
     BOOSTRAP_SERVERS: str = 'localhost:9092'
     CSV_FILE_PATH: str = 'data/dataset.csv'
+    SCALER_PATH: str = 'data/scaler.pkl'
 
 
 settings = Settings()

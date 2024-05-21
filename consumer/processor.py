@@ -1,7 +1,7 @@
 from logger import logger
+import asyncio
 
-
-def process_in_logfile(message: str) -> None:
+async def process_in_logfile(message: str) -> None:
     """
     Documentation
     """
