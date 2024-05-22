@@ -1,11 +1,11 @@
-class KafkaError(Exception):
-    """Base class for other kafka exceptions"""
+class KafkaConsumerError(Exception):
+    """Base class for other kafka copnsumer exceptions"""
     pass
 
-class CSVReadError(KafkaError):
-    """Raised when there is an error reading the CSV file"""
+class MessageHandlerError(KafkaConsumerError):
+    """Raised when a message cannot get handled by the threads"""
     pass
 
-class KafkaConsumeError(KafkaError):
-    """Raised when there is an error producing messages to Kafka"""
+class ConsumerTaskCreationError(KafkaConsumerError):
+    """Raised when a pool of messages cannot be enque in a task"""
     pass
