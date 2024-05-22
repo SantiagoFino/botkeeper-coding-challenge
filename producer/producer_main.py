@@ -6,13 +6,13 @@ from time import time
 from errors import FileNotFound, CSVReaderError, KafkaProduceError, DataCleanerError
 from logger import logger
 import asyncio
-
+import os
 
 async def main():
-    reader = CSVReader(path=settings.CSV_FILE_PATH)
+    reader = CSVReader(path=os.path.join(os.getcwd(), settings.CSV_FILE_PATH))
     producer = KafkaMessageProducer(bootstrap_servers=settings.BOOSTRAP_SERVERS,
                                     topic=settings.TOPIC)
-    scaler = load_scaler(scaler_path=settings.SCALER_PATH)
+    scaler = load_scaler(scaler_path=os.path.join(os.getcwd(), settings.SCALER_PATH))
     await producer.start()
     try:
         async for row in reader.read_csv():

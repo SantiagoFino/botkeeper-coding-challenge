@@ -1,4 +1,3 @@
-
 class FileNotFound(Exception):
     """Raised when there is an error reading a file"""
     pass
