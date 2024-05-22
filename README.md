@@ -1,5 +1,23 @@
 # Stream of Financial Transactions
 
+In this repository, you will find a Python script that simulates real-time processing of financial transactions, preparing a given dataset for clustering by performing preprocessing steps.
+
+To adress this problem, we utilize [Kafka](https://kafka.apache.org/), an open-source distributed event streaming platform that operates with 2 main components. The **producer** and the **consumer**.
+
+* The **producer** is responsible for reading data from the CSV file, performing the cleaning process on both the description and amount columns, and then sending the data to the Kafka broker for storage.
+
+* The **consumer** is a service that remains active, continuously reading the data as it is loaded by the producer. Additionally, it sends the read data to a log file in real time.
+
+## Repository Configuration
+
+Clone the repository
+
+```bash
+git clone https://github.com/SantiagoFino/stream-financial-transactions.git
+```
+
+Load the `.csv` file in the folder `./producer/data`. It should have the name "dataset.csv". Otherwise, the variable called `CSV_FILE_PATH` stored in `./producer/config.py` should be renamed to the one of the csv file.
+
 ## Run it locally
 
 For running Kafka locally follow the steps presented in the oficial [Apache Kafka](https://kafka.apache.org/quickstart) web page.
@@ -28,7 +46,7 @@ $ bin/kafka-server-start.sh config/server.properties
 
 ## Run it in a Container using Docker
 
-An Apache Kafka client instance should run on the same docker network as the client. For this purpose, we will follow the steps presented in [Bitnamy](https://hub.docker.com/r/bitnami/kafka).
+An Apache Kafka client instance should run on the same docker network as the client. For this purpose, we follow the steps presented in [Bitnamy](https://hub.docker.com/r/bitnami/kafka).
 
 ### 1. Create a network
 
