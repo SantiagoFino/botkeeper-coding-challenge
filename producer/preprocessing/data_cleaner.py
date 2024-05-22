@@ -1,7 +1,8 @@
 import joblib
-import numpy as np
 from logger import logger
-from errors import ScalerReaderError, FileNotFound, DataCleanerError       
+from errors import ScalerReaderError, FileNotFound, DataCleanerError     
+from preprocessing.derscription_cleaner import  TextCleaner
+from preprocessing.amount_cleaner import AmountCleaner
 
 
 def load_scaler(scaler_path: str):
@@ -40,23 +41,32 @@ class DataCleaner:
         self.amount = row['amount']
         self.scaler = scaler
 
+    def clean_description(self) -> None:
+        """
+        Cleans the description of the financial record
+        """
+        try:
+            text_cleaner = TextCleaner(text=self.description)
+            self.description = text_cleaner.clean_description()
+        except Exception:
+            raise DataCleanerError(f"Error cleaning the description {self.description}")
+        
     def clean_amount(self) -> None:
         """
         Normalizes the 'amount' value based on the class scaler
         """
-        self.amount = np.array(self.amount).reshape(-1, 1)
-        self.amount = self.scaler.transform(self.amount)[0][0]
+        try:
+            amount_cleaner = AmountCleaner(amount=self.amount, scaler=self.scaler)
+            self.amount = amount_cleaner.clean_amount()
+        except Exception:
+            raise DataCleanerError(f"Error cleaning the amount {self.amount}")
         
-    def clean_description(self) -> None:
-        self.description = self.description.lower()
-
     def clean_data(self) -> dict:
         try:
             self.clean_amount()
             self.clean_description()
-
             return {'description': self.description,
                     'amount': self.amount}
         except Exception as e:
-            logger.error(f"Unexpected error cleaning either {self.description} or {self.amount}: {e}")
-            raise DataCleanerError(f"Unexpected error cleaning either {self.description} or {self.amount}: {e}")
+            logger.error(f"Unexpected error cleaning ocurr while cleaning the record: {e}")
+            raise DataCleanerError(f"Unexpected error cleaning ocurr while cleaning the record: {e}")

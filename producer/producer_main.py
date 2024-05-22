@@ -1,7 +1,7 @@
 from reader import CSVReader
 from kafka_producer import KafkaMessageProducer
 from config import settings
-from data_cleaner import DataCleaner, load_scaler
+from preprocessing.data_cleaner import DataCleaner, load_scaler
 from time import time
 from errors import FileNotFound, CSVReaderError, KafkaProduceError, DataCleanerError
 from logger import logger
