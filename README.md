@@ -6,7 +6,41 @@ To adress this problem, we utilize [Kafka](https://kafka.apache.org/), an open-s
 
 * The **producer** is responsible for reading data from the CSV file, performing the cleaning process on both the description and amount columns, and then sending the data to the Kafka broker for storage.
 
-* The **consumer** is a service that remains active, continuously reading the data as it is loaded by the producer. Additionally, it sends the read data to a log file in real time.
+* The **consumer** is a service that remains active, continuously reading the data as it is loaded by the producer. Additionally, it sends the read data to a posgres database in real time.
+
+
+## Database configuration
+
+As the records are streamed into a posgreSQL database, its credentials can be modified in `./consumer/config/` in the `DB_SETTINGS` dictionary. If not, the table can be created using docker as follows:
+
+First, pull the official PostgreSQL Docker image
+
+```bash
+docker pull posgres
+```
+
+Run the PostgreSQL container with the following environment variables
+
+```bash
+docker run --name financial-db-container -e POSTGRES_DB=financial-transactions -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=financialdb -p 5433:5432 -d postgres
+```
+
+Now, connect to your PostgreSQL container and create the table for storing messages.
+
+```bash
+docker exec -it financial-db-container psql -U admin -d financial-transacions
+```
+
+That command will open a sql terminal where you can create the table running:
+
+```sql
+CREATE TABLE transactions (
+    id SERIAL PRIMARY KEY,
+    amount FLOAT NOT NULL,
+    description TEXT NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
 
 ## Repository Configuration
 
@@ -16,7 +50,7 @@ Clone the repository
 git clone https://github.com/SantiagoFino/stream-financial-transactions.git
 ```
 
-Load the `.csv` file in the folder `./producer/data`. It should have the name "dataset.csv". Otherwise, the variable called `CSV_FILE_PATH` stored in `./producer/config.py` should be renamed to the one of the csv file.
+Load the `.csv` file in the folder `./producer/data`. Preferably, the file name should be *dataset.csv*. Otherwise, its name must be passed in the argument `--csv_name`.
 
 ## Run it locally
 
@@ -42,6 +76,48 @@ Open another terminal and start the Kafka broker service
 $ bin/kafka-server-start.sh config/server.properties
 ```
 
+### 3. Install the requirements.txt
+
+In two new terminals, install the `requirements.txt` files for both the producer and the consumer.
+
+```bash
+$ cd consumer
+$ pip install -r requirements.txt
+```
+
+```bash
+$ cd producer
+$ pip install -r requirements.txt
+```
+
+Yes, by this moment we are using 5 terminals.
+
+### 4. Activate the consumer
+
+Being in the *consumer* folder, run:
+
+```bash
+python3 main.py --bootstrap_services localhost:9092 
+```
+
+The `--batch_size` can also be configured. It represents the number of records that can be uploaded to the posgres database
+
+### 5. Run the producer
+Being in the *producer* folder, run:
+
+```bash
+python3 main.py --bootstrap_services localhost:9092 
+```
+
+Other arguments that can be configured are
+
+```bash
+--csv_name   --chunk_size   --num_tasks
+```
+
+In case the *.csv* file has a different name than *dataset.csv* it must be specified. The `chunk_size` arg represents the number of rows to read from the CSV file at a time. The `num_tasks` arg represents the number of concurrent tasks to run for processing messages in parallel.
+
+*Note: the `--boostrap_services` arg is mandatory when run the consumer/producer locally and should have the value `localhost:9092`*
 
 
 ## Run it in a Container using Docker
