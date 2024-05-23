@@ -16,4 +16,4 @@ RUN pip install --upgrade pip && \
 COPY . /dist/
 
 
-CMD ["python3", "consumer_main.py"]
+CMD ["python3", "main.py"]

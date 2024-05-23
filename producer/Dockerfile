@@ -15,7 +15,7 @@ RUN pip install --upgrade pip && \
 COPY . /dist/
 
 
-ENTRYPOINT ["python3", "producer_main.py"]
+ENTRYPOINT ["python3", "main.py"]
 
 
 
