@@ -5,7 +5,7 @@ from typing import Callable
 from concurrent.futures import ThreadPoolExecutor
 from typing import List, Dict
 
-from errors import KafkaConsumerError, MessageHandlerError, ConsumerTaskCreationError
+from utils.errors import KafkaConsumerError, MessageHandlerError, ConsumerTaskCreationError
 
 class KafkaMessageConsumer:
     def __init__(self, topic: str, bootstrap_servers: str, group_id: str, batch_size: int) -> None:
@@ -67,6 +67,7 @@ class KafkaMessageConsumer:
             # Process any remaining messages
             if messages:
                 await self.handle_message(messages, processor)
+                
         except asyncio.CancelledError as e:
             raise ConsumerTaskCreationError(f"Current task was canceled: {e}")
         except Exception as e:

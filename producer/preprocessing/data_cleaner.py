@@ -1,7 +1,7 @@
 import joblib
-from logger import logger
+from utils.logger import logger
 import pandas as pd
-from errors import ScalerReaderError, FileNotFound, DataCleanerError     
+from utils.errors import ScalerReaderError, FileNotFound, DataCleanerError     
 from preprocessing.derscription_cleaner import  TextCleaner
 from preprocessing.amount_cleaner import AmountCleaner
 

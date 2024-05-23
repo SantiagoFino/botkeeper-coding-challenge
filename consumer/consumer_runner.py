@@ -1,17 +1,16 @@
 from kafka_consumer import KafkaMessageConsumer
-from processor import process_in_logfile, process_in_db
+from processor import process_in_db
 from config import settings
-import asyncio
-from logger import logger
-from errors import KafkaConsumerError
+from utils.logger import logger
+from utils.errors import KafkaConsumerError
 
 
-async def main():
+async def run_consumer(args):
     consumer = KafkaMessageConsumer(
         topic=settings.TOPIC,
-        bootstrap_servers=settings.BOOSTRAP_SERVERS,
+        bootstrap_servers=args.bootstrap_servers,
         group_id=settings.GROUP_ID,
-        batch_size=settings.BATCH_SIZE
+        batch_size=args.batch_size
     )
     await consumer.start()
     try:
@@ -22,6 +21,3 @@ async def main():
         logger.error(f"An unexpected error occurs while consuming the data: {e}")
     finally:
         await consumer.stop()
-    
-if __name__ == "__main__":
-    asyncio.run(main())

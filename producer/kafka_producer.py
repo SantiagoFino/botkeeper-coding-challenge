@@ -1,8 +1,8 @@
 from aiokafka import AIOKafkaProducer
 from aiokafka.errors import KafkaTimeoutError
 import json
-from errors import KafkaProduceError
-from logger import logger
+from utils.errors import KafkaProduceError
+from utils.logger import logger
 
 
 class KafkaMessageProducer:

@@ -1,5 +1,5 @@
 import pandas as pd
-from errors import CSVReaderError, FileNotFound, MissingColumnError
+from utils.errors import CSVReaderError, FileNotFound, MissingColumnError
 
 
 EXPECTED_COLUMNS = ['Description', 'Amount']

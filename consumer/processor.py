@@ -3,7 +3,7 @@ import psycopg2
 from psycopg2 import sql
 from contextlib import closing
 from typing import List, Dict
-from logger import logger
+from utils.logger import logger
 
 
 def process_in_logfile(message: str) -> None:
@@ -11,7 +11,6 @@ def process_in_logfile(message: str) -> None:
     Documentation
     """
     logger.info(f"record: {message}")
-
 
 
 def process_in_db(messages: List[Dict]) -> None:
