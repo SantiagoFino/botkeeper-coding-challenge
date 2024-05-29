@@ -19,16 +19,28 @@ First, pull the official PostgreSQL Docker image
 docker pull posgres
 ```
 
+If the code is going to be compute using docker containers, you must create a network
+
+```bash
+docker network create app-tier --driver bridge
+```
+
 Run the PostgreSQL container with the following environment variables
 
 ```bash
 docker run --name financial-db-container -e POSTGRES_DB=financial-transactions -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=financialdb -p 5433:5432 -d postgres
 ```
 
+Or if the code is going to run in a container, you must connect to the network you just create
+
+```bash
+docker run --name financial-db-container -e POSTGRES_DB=financial-transactions --network app-tier -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=financialdb -p 5433:5432 -d postgres 
+```
+
 Now, connect to your PostgreSQL container and create the table for storing messages.
 
 ```bash
-docker exec -it financial-db-container psql -U admin -d financial-transacions
+docker exec -it financial-db-container psql -U admin -d financial-transactions
 ```
 
 That command will open a sql terminal where you can create the table running:
@@ -51,6 +63,20 @@ git clone https://github.com/SantiagoFino/stream-financial-transactions.git
 ```
 
 Load the `.csv` file in the folder `./producer/data`. Preferably, the file name should be *dataset.csv*. Otherwise, its name must be passed in the argument `--csv_name`.
+
+If the code its ggoing to be running in a docker container, please update the consumer settings as follows.
+
+1. Go to `/consumer/config.py` 
+2. Change the variable `DB_SETTINGS` for the following value
+```python
+{
+    'dbname': 'financial-transactions',
+    'user': 'admin',
+    'password': 'financialdb',
+    'host': 'financial-db-container',
+    'port': 5432 
+}
+``` 
 
 ## Run it locally
 
@@ -124,13 +150,7 @@ In case the *.csv* file has a different name than *dataset.csv* it must be speci
 
 An Apache Kafka client instance should run on the same docker network as the client. For this purpose, we follow the steps presented in [Bitnamy](https://hub.docker.com/r/bitnami/kafka).
 
-### 1. Create a network
-
-```bash
-docker network create app-tier --driver bridge
-```
-
-### 2. Launch the Apache Kafka server instance
+### 1. Launch the Apache Kafka server instance
 
 This container will be attached to the `app-tier` network defined before
 
@@ -146,17 +166,20 @@ docker run -d --name kafka-server --hostname kafka-server \
     bitnami/kafka:latest
 ```
 
-### 3. Build the docker images
+### 2. Build the docker images
 
 Once the Kafka server is attached to the network, we can create both the consumer and the producer images
 
 ```bash
-$ docker build -t producer
-$ docker build -t consumer
+$ cd producer
+$ docker build -t producer .
+$ cd ..
+$ cd consumer
+$ docker build -t consumer .
 ```
 
 
-### 4. Run the instances
+### 3. Run the instances
 
 Then run the containers attached to the `app-tier` network. It is important to run the consumer container before the producer one. If not, the data will not be streamed in the correct way.
 

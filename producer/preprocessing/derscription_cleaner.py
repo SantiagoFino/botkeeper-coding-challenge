@@ -33,8 +33,6 @@ class TextCleaner:
         self.text = re.sub(r'[^a-z0-9\s]', '', self.text)
         # Insert space between letters and digits
         self.text = re.sub(r'(?<=\D)(?=\d)', ' ', self.text)
-        # Insert space between digits and letters
-        self.text = re.sub(r'(?<=\d)(?=\D)', ' ', self.text)
 
     def remove_stop_words(self) -> None:
         """
